@@ -5,6 +5,9 @@ export type VideoStatus = {
   status: VideoStatusValue
 }
 
-export type VideoState = VideoStatus[]
+export type VideoState = {
+  previewVideoIndex: number | null
+  programVideoIndex: number | null
+}
 
 export type VideoIndex = number

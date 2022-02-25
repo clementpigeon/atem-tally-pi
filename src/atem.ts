@@ -5,14 +5,23 @@ import { updateLights } from './lights'
 import { VideoIndex, VideoState, VideoStatus, VideoStatusValue } from './types'
 
 export function setupAtemConnection() {
+  console.log('setupAtemConnection')
   const myAtem = new Atem()
-  myAtem.on('info', console.log)
+  myAtem.on('info', (message) => console.log('info', message))
   myAtem.on('debug', console.log)
   myAtem.on('error', console.error)
 
-  console.log('atem run')
-
   myAtem.connect(CONFIG.switcherIpAddress)
+  .then((result) => {
+    console.log('success!')
+    console.log(result)
+
+  })
+  .catch((err) => {
+    console.log('error!')
+      console.log(err)
+
+    })
 
   myAtem.on('connected', () => {
     console.log('Connected to ATEM')
@@ -26,8 +35,8 @@ export function setupAtemConnection() {
 }
 
 export function handleNewAtemState(state: AtemState) {
-  console.log('New ATEM state')
-  console.log(state)
+  console.log('--- New ATEM state')
+  console.log(JSON.stringify(state, null, 2))
   // State does not always contain ME video data; Return if necessary data is missing.
   if (!state || !state.video || !state.video.mixEffects || !state.video.mixEffects[0]) return
 
@@ -43,18 +52,19 @@ export function handleNewAtemState(state: AtemState) {
 
 function getNewVideosState(atemState: AtemState): VideoState {
   if (!atemState.video.mixEffects[0]) {
-    return []
+    return {
+      previewVideoIndex: null,
+      programVideoIndex: null,
+    }
   }
 
   const previewVideoIndex = atemState.video.mixEffects[0].previewInput
   const programVideoIndex = atemState.video.mixEffects[0].programInput
 
-  return atemState.video.mixEffects.map((video, index) => {
-    return {
-      index: 1,
-      status: getVideoStatus(index, previewVideoIndex, programVideoIndex)
-    }
-  })
+  return {
+    previewVideoIndex,
+    programVideoIndex,
+  }
 }
 
 function getVideoStatus(

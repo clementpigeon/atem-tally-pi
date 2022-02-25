@@ -1,6 +1,6 @@
 type LightConfig = {
-  powerPin: number
-  colorPin: number
+  greenLedPin: number
+  redLedPin: number
 }
 
 type Config = {
@@ -9,19 +9,19 @@ type Config = {
 }
 
 export const CONFIG: Config = {
-  switcherIpAddress: '192.168.1.25',
+  switcherIpAddress: '169.254.1.178',
   lights: [
     {
-      powerPin: 16,
-      colorPin: 13
+      greenLedPin: 16,
+      redLedPin: 13
     },
     {
-      powerPin: 20,
-      colorPin: 19
+      greenLedPin: 20,
+      redLedPin: 19
     },
     {
-      powerPin: 21,
-      colorPin: 26
+      greenLedPin: 21,
+      redLedPin: 26
     }
   ]
 }

@@ -4,8 +4,8 @@ import { CONFIG } from './config'
 import { VideoIndex, VideoState, VideoStatus } from './types'
 
 type LightPins = {
-  powerPin: Gpio
-  colorPin: Gpio
+  greenLedPin: Gpio
+  redLedPin: Gpio
 }
 
 const lights: LightPins[] = []
@@ -16,39 +16,41 @@ export function setupLights() {
 
 function setupVideo(videoIndex: VideoIndex): void {
   const pins = {
-    powerPin: new Gpio(CONFIG.lights[videoIndex].powerPin, { mode: Gpio.OUTPUT }),
-    colorPin: new Gpio(CONFIG.lights[videoIndex].colorPin, { mode: Gpio.OUTPUT })
+    greenLedPin: new Gpio(CONFIG.lights[videoIndex].greenLedPin, { mode: Gpio.OUTPUT }),
+    redLedPin: new Gpio(CONFIG.lights[videoIndex].redLedPin, { mode: Gpio.OUTPUT })
   }
   lights.push(pins)
 }
 
 function turnGreenLightOn(videoIndex: VideoIndex): void {
-  lights[videoIndex].powerPin.digitalWrite(1)
-  lights[videoIndex].colorPin.digitalWrite(0)
+  lights[videoIndex].greenLedPin.digitalWrite(1)
+  lights[videoIndex].redLedPin.digitalWrite(0)
 }
 
 function turnRedLightOn(videoIndex: VideoIndex): void {
-  lights[videoIndex].powerPin.digitalWrite(1)
-  lights[videoIndex].colorPin.digitalWrite(1)
+  lights[videoIndex].greenLedPin.digitalWrite(0)
+  lights[videoIndex].redLedPin.digitalWrite(1)
 }
 
 function turnLightOff(videoIndex: VideoIndex): void {
-  lights[videoIndex].powerPin.digitalWrite(0)
-  lights[videoIndex].colorPin.digitalWrite(0)
+  lights[videoIndex].greenLedPin.digitalWrite(0)
+  lights[videoIndex].redLedPin.digitalWrite(0)
 }
 
 export function updateLights(videoState: VideoState): void {
-  videoState.forEach((videoStatus: VideoStatus, index) => {
-    if (videoStatus.status === 'program') {
+  lights.forEach((light, index_) => {
+    console.log(index_)
+    const index = index_ + 1
+    if (videoState.programVideoIndex === index) {
       console.log(`tally ${index}: red`)
-      turnRedLightOn(videoStatus.index)
+      turnRedLightOn(index_)
       return
-    } else if (videoStatus.status === 'preview') {
+    } else if (videoState.previewVideoIndex === index) {
       console.log(`tally ${index}: green`)
-      turnGreenLightOn(videoStatus.index)
+      turnGreenLightOn(index_)
       return
     }
     console.log(`tally ${index}: off`)
-    turnLightOff(videoStatus.index)
+    turnLightOff(index_)
   })
 }
